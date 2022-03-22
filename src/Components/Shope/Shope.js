@@ -1,5 +1,6 @@
     
     import React, { useEffect, useState } from 'react';
+import { addToDb, getStoreCart } from '../../utilities/fakedb';
 import Cart from '../Cart/Cart';
 import Product from '../Product/Product';
      import './Shope.css'
@@ -9,16 +10,43 @@ import Product from '../Product/Product';
         const [cart, setCart] = useState([])
 
          useEffect( () => {
+            
              fetch('https://raw.githubusercontent.com/ProgrammingHero1/ema-john-resources/main/fakeData/products.json')
              .then(res => res.json())
              .then(data => setProducts(data))
          }, [])
 
+        useEffect( () => {
+           const storeCart = getStoreCart();
+           const saveCart = [];
+           for (const id in storeCart) {
+               const addedProduct = products.find(product => product.id === id)
+               if (addedProduct) {
+                   const quantity = storeCart[id]
+                   addedProduct.quantity = quantity
+                saveCart.push(addedProduct)
+               }
+           } 
+           setCart(saveCart) 
+        }, [products])
+         
+
          const handaleClick = (product) => {
-            console.log(product);
-            // cart.push(product)
-            const newCart = [...cart, product]
+          let newCart = [];
+            const exists = cart.find(newProduct => newProduct.id === product.id)
+            if (!exists) {
+                product.quantity = 1;
+                newCart = [...cart. product] 
+            }
+            else {
+                const rest = cart.filter(newProduct => newProduct.id !== product.id)
+                exists.quantity = exists.quantity + 1;
+                newCart = [...rest, exists
+                ]
+            }
+
             setCart(newCart)
+            addToDb(product.id)
         }
 
         return (
